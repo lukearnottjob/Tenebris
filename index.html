@@ -1,0 +1,23 @@
+<html>
+<head>
+<style>
+div{
+	position: fixed;
+	width: 200px;
+	height: 200px;
+	background-color: #000;
+	left: 500px;
+	top: 0;
+}
+</style>
+<script src="js/mouse.js"></script>
+</head>
+<body>
+<div onmousedown="trackMouse(dragDOM, this);"></div>
+<script>
+document.addEventListener("mouseup", stopTrackMouse);
+ 
+</script>
+
+</body>
+</html>
