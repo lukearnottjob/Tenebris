@@ -1,6 +1,9 @@
 <html>
 <head>
 <style>
+html, body{
+    margin: 0;
+}
 div{
 	position: fixed;
 	width: 200px;
@@ -9,14 +12,30 @@ div{
 	left: 500px;
 	top: 0;
 }
+#stageOne{
+    background-color: #9a9a9a;
+}
 </style>
 <script src="js/ui/mouse.js"></script>
+<script src="js/ui/stage.js"></script>
 </head>
 <body>
-<div onmousedown="trackMouse(dragDOM, this);"></div>
+<div onmousedown="dragDOM(this);"></div>
+<canvas id="stageOne" onmousedown="dragContext(mainStage);" onclick="mouseCircleCollision(object);"></canvas>
 <script>
-document.addEventListener("mouseup", stopTrackMouse);
+var mainStage = new Stage(0, 0, window.innerWidth, window.innerHeight, 'stageOne');
+var object = {x: 100, y: 100, radius: 50};
+function draw(){
+    mainStage.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    mainStage.context.beginPath();
+    mainStage.context.arc(object.x + mainStage.offsetX, object.y+mainStage.offsetY, object.radius, 0, 2 * Math.PI);
+       mainStage.context.fill();
+    
  
+   // mainStage.drawRect(30, 30, 150, 150, 'blue'); 
+    
+}
+setInterval(draw, 1000/30);
 </script>
 
 </body>
