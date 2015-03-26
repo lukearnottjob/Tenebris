@@ -16,6 +16,10 @@ function Stage(x, y, width, height, element){
     }
     this.init();
 }
+Stage.prototype.dimensions = function(width, height){
+    this.element.width = this.width;
+    this.element.height = this.height;
+}
 Stage.prototype.drawRect = function(){//x, y, width, height, colour.
 
     if(arguments[arguments.length -1] === true){//If the rectangle to be drawn is in an array or not.

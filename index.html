@@ -1,42 +1,80 @@
 <html>
 <head>
-<style>
-html, body{
-    margin: 0;
-}
-div{
-	position: fixed;
-	width: 200px;
-	height: 200px;
-	background-color: #000;
-	left: 500px;
-	top: 0;
-}
-#stageOne{
-    background-color: #9a9a9a;
-}
-</style>
+<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" type="text/css" href="styles/stylesheet.css">
 <script src="js/ui/mouse.js"></script>
 <script src="js/ui/stage.js"></script>
+<script src="js/ui/window.js"></script>
 </head>
 <body>
-<div onmousedown="dragDOM(this);"></div>
-<canvas id="stageOne" onmousedown="dragContext(mainStage);" onclick="mouseCircleCollision(object);"></canvas>
-<script>
-var mainStage = new Stage(0, 0, window.innerWidth, window.innerHeight, 'stageOne');
-var object = {x: 100, y: 100, radius: 50};
-function draw(){
-    mainStage.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
-    mainStage.context.beginPath();
-    mainStage.context.arc(object.x + mainStage.offsetX, object.y+mainStage.offsetY, object.radius, 0, 2 * Math.PI);
-       mainStage.context.fill();
-    
- 
-   // mainStage.drawRect(30, 30, 150, 150, 'blue'); 
-    
-}
-setInterval(draw, 1000/30);
-</script>
+<div id="welcomeHolder">
+    <div id="welcomeContent">
+        <div id="logo"></div>
+        <div id="textContainer">
+            <div id="title" class="white">Tenebris</div>
+            <button id="launch" onclick="launch();">launch</button>
+        </div>
+    </div>
+</div>
 
+<div id="simulation">
+    <div id="controlsHolder" class="colour4">
+        <div id="controls" class="colour2"> 
+            <div class="colour4" style=" width: 100%;">CONTROLS </div>
+            <input class="controlsInput half" value="X-Coordinate" onfocus="inputActive(this);" onblur="inputInactive(this, '');" onmouseover="tooltip(this)">
+            <input class="controlsInput half" value="Y-Coordinate" onfocus="inputActive(this);" onblur="inputInactive(this, '');" onmouseover="tooltip(this)">
+            <input class="controlsInput half" value="X-Velocity" onfocus="inputActive(this);" onblur="inputInactive(this, 'm/s');" onmouseover="tooltip(this)">
+            <input class="controlsInput half" value="Y-Velocity" onfocus="inputActive(this);" onblur="inputInactive(this, 'm/s');" onmouseover="tooltip(this)">
+            <input class="controlsInput" value="Mass" onfocus="inputActive(this);" onblur="inputInactive(this, 'kg');" onmouseover="tooltip(this)">
+            <input class="controlsInput" value="Radius" onfocus="inputActive(this);" onblur="inputInactive(this, 'm');" onmouseover="tooltip(this)">
+        </div>
+        <div id="tooltip" class="colour5"></div>
+    </div>
+    
+    <canvas id="mainStage"></canvas>
+</div>
+<script>
+    function launch(){
+        document.getElementById('welcomeContent').style.opacity = 0;
+        
+        document.getElementById('simulation').style.top = 0;
+    }
+    var windowWidth;
+    var windowHeight;
+    getWindowDimensions();
+    function getWindowDimensions(){
+        windowWidth = window.innerWidth;
+        windowHeight = window.innerHeight;
+    }
+    var mainStage = new Stage(0, 0, windowWidth, windowHeight, 'mainStage');
+    
+    function inputActive(element){
+        if(element.value == element.defaultValue){
+            element.value = '';
+        }
+        
+        element.value = element.value.replace(/[^0-9.]/g,'');
+    }
+    function inputInactive(element, unit){
+        element.value = element.value.replace(/[^0-9.]/g,'');
+        if(element.value == '' || element.value == unit){
+            inputDefault(element);
+        }else{
+            element.value +=  unit;
+        }
+        
+    }
+    function inputDefault(element){
+        element.value = element.defaultValue;
+    }
+    function inputValidation(element, allow, unit){
+       
+            
+    
+    }
+    
+</script>
 </body>
+
+
 </html>

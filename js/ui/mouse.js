@@ -45,9 +45,10 @@ function draggingContext(){
     mouseElement.offsetY = mouse.y - originalMousePosition.y + elementOffset.y;
 }
 function mouseCircleCollision(object){
+    var collision = false;
     var mouse = mousePosition();
     var radius = Math.sqrt(Math.pow(object.x - mouse.x + mainStage.offsetX, 2) + Math.pow(object.y -mouse.y + mainStage.offsetY, 2));
     if(radius < object.radius){
-        alert('collision');
+        collision = true;
     }
 }
