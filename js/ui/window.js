@@ -1,3 +1,10 @@
+var windowWidth;
+var windowHeight;
+var objectSelected;
+function getWindowDimensions(){
+        windowWidth = window.innerWidth;
+        windowHeight = window.innerHeight;
+}
 function moveWindow(x, y, elementID){
     var element = document.getElementById(elementID);
     element.style.left = x;
@@ -5,20 +12,24 @@ function moveWindow(x, y, elementID){
     element.style.display = 'block';
 }
 function closeWindow(elementID){
-    var element = document.getElementById(elementID);
-    element.style.display = 'none';
+    elementID.style.display = 'none';
 }
 function tooltip(element){
     var tooltipElement = document.getElementById('tooltip');
-    tooltipElement.style.display = 'block';
-    mouseElement = tooltipElement;
     tooltipElement.innerHTML = element.defaultValue;
-    originalMousePosition = {x: 0, y: 0};
-    elementOffset = {x: -parseInt(window.getComputedStyle(tooltipElement, null).getPropertyValue('width').replace('px', ''), 10) - 5, y: -parseInt(window.getComputedStyle(tooltipElement, null).getPropertyValue('height').replace('px', ''), 10)};
+    if(tooltipElement.innerHTML == 'undefined'){
+        tooltipElement.innerHTML = element.getAttribute('name');
+    }
+    tooltipElement.style.display = 'block';
+     var elementWidth = parseInt(window.getComputedStyle(tooltipElement, null).getPropertyValue('width').replace('px', ''), 10) + 10;
+    var position = {x: element.getBoundingClientRect().left, y: element.getBoundingClientRect().top};
     
-     document.addEventListener('mousemove', draggingDOM);
+    
+    tooltipElement.style.left = position.x - elementWidth;
+    tooltipElement.style.top = position.y;
+    
     element.addEventListener('mouseout', function(){
-        document.removeEventListener('mousemove', draggingDOM);
-        mouseElement.style.display= 'none';
+        tooltipElement.style.display= 'none';
     });
+    
 }

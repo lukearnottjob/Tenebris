@@ -2,57 +2,211 @@
 <head>
 <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
 <link rel="stylesheet" type="text/css" href="styles/stylesheet.css">
+<link rel="stylesheet" type="text/css" href="styles/style.css">
+
+<script src="js/ui/window.js"></script>
 <script src="js/ui/mouse.js"></script>
 <script src="js/ui/stage.js"></script>
-<script src="js/ui/window.js"></script>
+<script src="js/engine/physics.js"></script>
+<script src="js/stars.js"></script>
 </head>
-<body>
+<body onload="graphStage.drawGraph();">
 <div id="welcomeHolder">
     <div id="welcomeContent">
         <div id="logo"></div>
         <div id="textContainer">
             <div id="title" class="white">Tenebris</div>
+            <div id="about" class="white">This is text all about Tenebris</div>
             <button id="launch" onclick="launch();">launch</button>
+            <button id="launch" onclick="about();">about</button>
         </div>
     </div>
 </div>
-
+<div id="tooltip" class="colour1"></div>
 <div id="simulation">
-    <div id="controlsHolder" class="colour4">
+    
+   
+    <canvas id="graphStage"></canvas>
+     <canvas id="mainStage" onmousedown="dragContext(graphStage.drawGraph);" onclick="objectClick()"></canvas>
+     
+   
+    
+</div>
+<div id="controlsHolder" class="colour4">
         <div id="controls" class="colour2"> 
-            <div class="colour4" style=" width: 100%;">CONTROLS </div>
+            <div class="colour4" style=" width: 100%;">CONTROLS</div>
             <input class="controlsInput half" value="X-Coordinate" onfocus="inputActive(this);" onblur="inputInactive(this, '');" onmouseover="tooltip(this)">
             <input class="controlsInput half" value="Y-Coordinate" onfocus="inputActive(this);" onblur="inputInactive(this, '');" onmouseover="tooltip(this)">
             <input class="controlsInput half" value="X-Velocity" onfocus="inputActive(this);" onblur="inputInactive(this, 'm/s');" onmouseover="tooltip(this)">
             <input class="controlsInput half" value="Y-Velocity" onfocus="inputActive(this);" onblur="inputInactive(this, 'm/s');" onmouseover="tooltip(this)">
             <input class="controlsInput" value="Mass" onfocus="inputActive(this);" onblur="inputInactive(this, 'kg');" onmouseover="tooltip(this)">
             <input class="controlsInput" value="Radius" onfocus="inputActive(this);" onblur="inputInactive(this, 'm');" onmouseover="tooltip(this)">
+            <button class="controlsInput colour1">Create</button>
+            <button class="controlsInput colour1">Delete</button>
+            <br>
+            <br>
+            <button class="controlsInput colour1 half">Play</button>
+            <button class="controlsInput colour1 half">Pause</button>
+            <br>
+            
+            <div class="slider controlsInput colour4" name="Speed" onmouseover="tooltip(this);">Speed<div value="0.5" class="slide colour1" onmousedown="dragDOMx(this, refreshVariables);"></div></div>
         </div>
-        <div id="tooltip" class="colour5"></div>
+        
     </div>
     
-    <canvas id="mainStage"></canvas>
-</div>
+    
+        <div id="objectVariables" class="colour2">
+        <div class="close" onclick="closeWindow(this.parentNode);"></div>
+            <div class="handle colour5" onmousedown="dragDOM(this.parentNode);">PLANET WINDOW</div>
+            <input class="controlsInput half" value="X-Coordinate" onfocus="inputActive(this);" onblur="inputInactive(this, '');" onmouseover="tooltip(this)">
+            <input class="controlsInput half" value="Y-Coordinate" onfocus="inputActive(this);" onblur="inputInactive(this, '');" onmouseover="tooltip(this)">
+            <input class="controlsInput half" value="X-Velocity" onfocus="inputActive(this);" onblur="inputInactive(this, 'm/s');" onmouseover="tooltip(this)">
+            <input class="controlsInput half" value="Y-Velocity" onfocus="inputActive(this);" onblur="inputInactive(this, 'm/s');" onmouseover="tooltip(this)">
+            <input class="controlsInput" value="Mass" onfocus="inputActive(this);" onblur="inputInactive(this, 'kg');" onmouseover="tooltip(this)">
+            <input class="controlsInput" value="Radius" onfocus="inputActive(this);" onblur="inputInactive(this, 'm');" onmouseover="tooltip(this)">
+            <button class="controlsInput colour1">Update</button>
+            <button class="controlsInput colour1">Delete</button>
+        </div>
+    
 <script>
+    launch();
     function launch(){
         document.getElementById('welcomeContent').style.opacity = 0;
-        
-        document.getElementById('simulation').style.top = 0;
+        document.getElementById('simulation').style.top = 1;
+        document.getElementById('graphStage').style.opacity = 1;
     }
-    var windowWidth;
-    var windowHeight;
+    function about(){
+        document.getElementById('about').style.height = '600px';
+        document.getElementById('welcomeContent').style.top = '-500px';
+    }
+    
     getWindowDimensions();
-    function getWindowDimensions(){
-        windowWidth = window.innerWidth;
-        windowHeight = window.innerHeight;
-    }
+    setTimeStamps();
+    
+    var FRAME_RATE = 60;
+    var defaultGameRate = 50;
+    var gameRate = defaultGameRate;
+    var interpolationEnabled = true;
     var mainStage = new Stage(0, 0, windowWidth, windowHeight, 'mainStage');
+    var graphStage = new Stage(0, 0, windowWidth, windowHeight, 'graphStage');
+    
+    var objectArray = [new Ball(100, 100, 1, 0, 10000000, 50, false, '#ffffff'), new Ball(300, 300, 0, 0, 1000000, 50, false, '#ff0000')];
+    function init(){
+        var sliders = document.getElementsByClassName('slide');
+        for(var sliderCount = 0; sliderCount < sliders.length; sliderCount++){
+            setSlide(sliders[sliderCount]);
+        }
+    }
+    function refreshVariables(grValue){
+        gameRate = defaultGameRate * grValue;
+    }
+    function newPlanet(){
+        objectArray.push(new Ball(x, y, velocityX, velocityY, mass, radius, isStatic, colour));
+    }
+    
+    function objectClick(){
+         var i = objectArray.length -1;
+        
+        while(i >= 0){
+            var collision = mouseCircleCollision(objectArray[i]);
+            if(collision == true){
+                objectSelected = objectArray[i];
+                moveWindow(objectSelected.x + offsetX, objectSelected.y+ offsetY, 'objectVariables');
+                break;
+            }
+            i--;
+        }
+    }
+    
+    function main(){
+        
+        
+        var curTime = new Date().getTime();
+	
+        //Game rate isolation code.
+        updateTime = 1000.0 / gameRate;
+    	if (lastTime + updateTime < curTime) {
+            timeStamp = curTime;
+            while (lastTime + updateTime < curTime) {
+                
+                
+                updateTick();
+                        
+                lastTime += updateTime;
+                
+            }
+        }
+        
+        mainStage.context.clearRect(0, 0, windowWidth, windowHeight);
+        
+        var i = objectArray.length -1;
+        var interpolation = Math.min(1.0, (curTime - timeStamp)/updateTime);
+        
+        while(i >= 0){
+            var obj = objectArray[i];
+            
+            var newX = obj.x;
+            var newY = obj.y;
+            
+            if(interpolationEnabled){
+                var diffX = obj.x - obj.lastX;
+                var diffY = obj.y - obj.lastY;
+        
+                newX = obj.lastX + (interpolation * diffX);
+                newY = obj.lastY + (interpolation * diffY);
+            }
+            mainStage.drawBall(newX, newY, obj.radius, obj.colour);
+            i--;
+        }
+        
+    }
+    
+    function setTimeStamps(){
+    	timeStamp = new Date().getTime();
+    	lastTime = timeStamp;
+    }
+    
+    function updateTick(){
+        var updateLoop = objectArray.length - 1;
+        while(updateLoop > 0){
+            
+            objectArray[updateLoop].capture();
+            var objectCompareLoop = updateLoop - 1;
+            //if(objectCompareLoop < 0 ){
+              //  break;   
+            //}
+                
+                while(objectCompareLoop >= 0){
+                    
+                    objectArray[objectCompareLoop].capture();
+                    var component = getAccelerationDueToGravity(objectArray[updateLoop], objectArray[objectCompareLoop]);
+                    if(objectArray[updateLoop].isStatic == false){
+                        objectArray[updateLoop].velocityX += -component.x;
+                        objectArray[updateLoop].velocityY += -component.y;
+                    }
+                    if(objectArray[objectCompareLoop].isStatic == false){
+                        objectArray[objectCompareLoop].velocityX += component.x;
+                        objectArray[objectCompareLoop].velocityY += component.y;
+                    }
+                    objectArray[objectCompareLoop].x += objectArray[objectCompareLoop].velocityX;
+                    objectArray[objectCompareLoop].y += objectArray[objectCompareLoop].velocityY;
+                    
+                    objectCompareLoop--;
+                }
+            objectArray[updateLoop].x += objectArray[updateLoop].velocityX;
+            objectArray[updateLoop].y += objectArray[updateLoop].velocityY;
+            
+            
+            updateLoop--;
+        }
+    }
+    
     
     function inputActive(element){
         if(element.value == element.defaultValue){
             element.value = '';
         }
-        
+        tooltip(element);
         element.value = element.value.replace(/[^0-9.]/g,'');
     }
     function inputInactive(element, unit){
@@ -67,11 +221,8 @@
     function inputDefault(element){
         element.value = element.defaultValue;
     }
-    function inputValidation(element, allow, unit){
-       
-            
-    
-    }
+    init();
+    setInterval(main, 1000/FRAME_RATE);
     
 </script>
 </body>
